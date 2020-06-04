@@ -55,6 +55,13 @@ func (udp *UDP) DecodeFromBytes(data []byte, df gopacket.DecodeFeedback) error {
 	return nil
 }
 
+func (u *UDP) ComputeChecksum() (uint16, error) {
+	bytes := append(append([]byte(nil), u.Contents...), u.Payload...)
+	bytes[6] = 0
+	bytes[7] = 0
+	return u.computeChecksum(bytes, IPProtocolUDP)
+}
+
 // SerializeTo writes the serialized form of this layer into the
 // SerializationBuffer, implementing gopacket.SerializableLayer.
 // See the docs for gopacket.SerializableLayer for more info.

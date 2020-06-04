@@ -370,3 +370,22 @@ func TestDNSDoesNotMalloc(t *testing.T) {
 		t.Error(n, "mallocs decoding DNS")
 	}
 }
+
+func TestUDPComputeChecksum(t *testing.T) {
+	p := gopacket.NewPacket(testUDPPacketDNS, LinkTypeEthernet, gopacket.Default)
+	udp := p.Layer(LayerTypeUDP).(*UDP)
+	udp.SetNetworkLayerForChecksum(p.Layer(LayerTypeIPv4).(*IPv4))
+	prevContents := append([]byte(nil), udp.Contents...)
+	gotCsum, err := udp.ComputeChecksum()
+
+	if err != nil {
+		t.Fatal(err)
+	}
+	if gotCsum != udp.Checksum {
+		t.Errorf("expected checsum %x, but got %x", udp.Checksum, gotCsum)
+	}
+
+	if !reflect.DeepEqual(prevContents, udp.Contents) {
+		t.Errorf("contents changed")
+	}
+}
