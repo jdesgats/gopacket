@@ -101,3 +101,22 @@ func TestPacketTCPOptionDecode(t *testing.T) {
 		t.Errorf("expected options to be %#v, but got %#v", expected, tcp.Options)
 	}
 }
+
+func TestTCPComputeChecksum(t *testing.T) {
+	p := gopacket.NewPacket(testPacketTCPOptionDecode, LinkTypeEthernet, gopacket.Default)
+	tcp := p.Layer(LayerTypeTCP).(*TCP)
+	tcp.SetNetworkLayerForChecksum(p.Layer(LayerTypeIPv4).(*IPv4))
+	prevContents := append([]byte(nil), tcp.Contents...)
+	gotCsum, err := tcp.ComputeChecksum()
+
+	if err != nil {
+		t.Fatal(err)
+	}
+	if gotCsum != tcp.Checksum {
+		t.Errorf("expected checsum %x, but got %x", tcp.Checksum, gotCsum)
+	}
+
+	if !reflect.DeepEqual(prevContents, tcp.Contents) {
+		t.Errorf("contents changed")
+	}
+}
