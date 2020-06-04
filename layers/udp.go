@@ -59,7 +59,7 @@ func (u *UDP) ComputeChecksum() (uint16, error) {
 	bytes := append(append([]byte(nil), u.Contents...), u.Payload...)
 	bytes[6] = 0
 	bytes[7] = 0
-	return u.computeChecksum(bytes, IPProtocolUDP)
+	return u.computeChecksum(bytes, uint32(len(bytes)), IPProtocolUDP)
 }
 
 // SerializeTo writes the serialized form of this layer into the
@@ -92,7 +92,8 @@ func (u *UDP) SerializeTo(b gopacket.SerializeBuffer, opts gopacket.SerializeOpt
 		// zero out checksum bytes
 		bytes[6] = 0
 		bytes[7] = 0
-		csum, err := u.computeChecksum(b.Bytes(), IPProtocolUDP)
+		buf := b.Bytes()
+		csum, err := u.computeChecksum(buf, uint32(len(buf)), IPProtocolUDP)
 		if err != nil {
 			return err
 		}

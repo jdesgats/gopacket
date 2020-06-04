@@ -102,6 +102,22 @@ func (a UDPPort) LayerType() gopacket.LayerType {
 	return gopacket.LayerTypePayload
 }
 
+// LayerType returns a LayerType that would be able to decode the
+// application payload. It uses some well-known ports such as 53 for
+// DNS.
+//
+// Returns gopacket.LayerTypePayload for unknown/unsupported port numbers.
+func (a UDPLitePort) LayerType() gopacket.LayerType {
+	// according to RFC 3828 Section 3.1 "UDP-Lite uses the same set of port
+	// number values assigned by the IANA for use by UDP". So there is no need
+	// for a separate layer type mapping.
+	lt := udpPortLayerType[uint16(a)]
+	if lt != 0 {
+		return lt
+	}
+	return gopacket.LayerTypePayload
+}
+
 var udpPortLayerType = [65536]gopacket.LayerType{
 	53:   LayerTypeDNS,
 	123:  LayerTypeNTP,

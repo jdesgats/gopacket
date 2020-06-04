@@ -72,11 +72,10 @@ func tcpipChecksum(data []byte, csum uint32) uint16 {
 // computeChecksum computes a TCP or UDP checksum.  headerAndPayload is the
 // serialized TCP or UDP header plus its payload, with the checksum zero'd
 // out. headerProtocol is the IP protocol number of the upper-layer header.
-func (c *tcpipchecksum) computeChecksum(headerAndPayload []byte, headerProtocol IPProtocol) (uint16, error) {
+func (c *tcpipchecksum) computeChecksum(headerAndPayload []byte, length uint32, headerProtocol IPProtocol) (uint16, error) {
 	if c.pseudoheader == nil {
 		return 0, errors.New("TCP/IP layer 4 checksum cannot be computed without network layer... call SetNetworkLayerForChecksum to set which layer to use")
 	}
-	length := uint32(len(headerAndPayload))
 	csum, err := c.pseudoheader.pseudoheaderChecksum()
 	if err != nil {
 		return 0, err

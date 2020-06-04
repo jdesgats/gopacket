@@ -210,7 +210,7 @@ func (i *ICMPv6) SerializeTo(b gopacket.SerializeBuffer, opts gopacket.Serialize
 	if opts.ComputeChecksums {
 		bytes[2] = 0
 		bytes[3] = 0
-		csum, err := i.computeChecksum(b.Bytes(), IPProtocolICMPv6)
+		csum, err := i.computeChecksum(b.Bytes(), 0, IPProtocolICMPv6)
 		if err != nil {
 			return err
 		}
